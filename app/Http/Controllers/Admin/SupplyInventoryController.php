@@ -30,6 +30,21 @@ class SupplyInventoryController extends Controller
         ]);
 
         try {
+            // Check if an item with the same name and unit type exists
+            $existingSupply = SuppliesInventory::where('product_name', $validated['product_name'])
+                                             ->where('unit_type', $validated['unit_type'])
+                                             ->first();
+
+            if ($existingSupply) {
+                // Update existing supply quantity
+                $existingSupply->quantity += $validated['quantity'];
+                $existingSupply->save();
+
+                return redirect()->route('admin.inventory')
+                               ->with('success', 'Supply quantity updated successfully');
+            }
+
+            // If no existing supply found, create new one
             $supply = new SuppliesInventory();
             $supply->control_code = 'SUP-' . strtoupper(Str::random(8));
             $supply->product_name = $validated['product_name'];
