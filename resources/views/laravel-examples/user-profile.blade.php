@@ -399,18 +399,19 @@ function uploadAvatar(input) {
     if (input.files && input.files[0]) {
         const formData = new FormData();
         formData.append('avatar', input.files[0]);
+        formData.append('_token', '{{ csrf_token() }}');
         
         fetch('/upload-avatar', {
             method: 'POST',
             body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            }
+            credentials: 'same-origin'
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                document.querySelector('.profile-image').src = URL.createObjectURL(input.files[0]);
+                // Update the image source with the new path from the server
+                document.querySelector('.profile-image').src = data.path;
+                
                 // Show success message
                 const alert = document.createElement('div');
                 alert.className = 'alert alert-success alert-dismissible fade show';
@@ -425,8 +426,7 @@ function uploadAvatar(input) {
                 
                 // Auto dismiss after 3 seconds
                 setTimeout(() => {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
+                    alert.remove();
                 }, 3000);
             } else {
                 showErrorMessage('Error uploading image');
@@ -451,10 +451,8 @@ function showErrorMessage(message) {
     `;
     document.querySelector('.card-body').insertBefore(alert, document.querySelector('.profile-image-container'));
     
-    // Auto dismiss after 3 seconds
     setTimeout(() => {
-        const bsAlert = new bootstrap.Alert(alert);
-        bsAlert.close();
+        alert.remove();
     }, 3000);
 }
 </script>

@@ -13,7 +13,7 @@ class UserProfileController extends Controller
         $request->validate([
             'name' => 'required|string|min:3',
             'email' => 'required|email|unique:users,email,' . auth()->id(),
-            'phone' => 'nullable|string',
+            'phone' => ['nullable', 'string', 'regex:/^([0-9\s\-\+\(\)]*)$/'],
             'location' => 'nullable|string',
             'about' => 'nullable|string'
         ]);
